@@ -22,7 +22,7 @@ app.use(cookieParser())
 // app.use(session(sess))
 // app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
 app.use(session({
-  secret: 'keyboard cat',
+  secret: 'sd23ctest',
   resave: false,
   saveUninitialized: false,
   cookie: { secure: true, maxAge: 60000 }
