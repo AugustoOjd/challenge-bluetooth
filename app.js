@@ -3,6 +3,10 @@ const sequelize = require('./src/db/dbConnection')
 const {User} = require('./src/models/User.model')
 const userRouter = require('./src/routes/user.routes')
 const bodyParser = require('body-parser')
+const cors = require('cors')
+const session = require('express-session')
+const cookieParser = require('cookie-parser')
+
 
 const app = express()
 const port = 8080
@@ -13,9 +17,19 @@ app.get('/', (req, res) => {
 
 app.use(express.json())
 app.use(bodyParser.json())
-// app.use(bodyParser.urlencoded({ extended: false }))
+app.use(cors())
+app.use(cookieParser())
+// app.use(session(sess))
+// app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: true, maxAge: 60000 }
+}))
 
 app.use('/api/user', userRouter)
+
 
 const connectionMain = async () =>{
     try {
