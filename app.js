@@ -15,18 +15,19 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
+app.use(cookieParser())
 app.use(express.json())
 app.use(bodyParser.json())
 app.use(cors())
-app.use(cookieParser())
+
 // app.use(session(sess))
 // app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
-app.use(session({
-  secret: 'sd23ctest',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: true, maxAge: 60000 }
-}))
+// app.use(session({
+//   secret: 'sd23ctest',
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: { secure: true, maxAge: 60000 }
+// }))
 
 app.use('/api/user', userRouter)
 

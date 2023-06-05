@@ -1,6 +1,9 @@
 const {CustomError} = require('../errors/customErrors')
 const {User} = require('../models/User.model')
 const { Op } = require("sequelize");
+const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv')
+dotenv.config()
 
 class UserService {
     constructor(){
@@ -24,8 +27,18 @@ class UserService {
 
             const user = await User.create({firstName, lastName, email, password})
             user.save()
+
+            const token = jwt.sign({
+                token: user.email
+              }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
             
-            return user
+            return {
+                user: {
+                    firstName: firstName,
+                    email: email
+                },
+                token: token
+            }
         } catch (error) {
             throw error
         }
@@ -45,8 +58,16 @@ class UserService {
             })
 
             if(validUser.length <= 0) throw new CustomError('invalid credentials', 404, 'credentials error', false)
+
             
-            return validUser
+            const token = jwt.sign({
+                data: validUser.email
+              }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
+            
+            return {
+                user: email,
+                token: token
+            }
 
         } catch (error) {
             throw error

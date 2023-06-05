@@ -1,13 +1,13 @@
 const {request, response} = require('express')
 const {userService} = require('../services/user.service')
+const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv')
+const { User } = require('../models/User.model')
+dotenv.config()
 
 const userRegister = async (req = request, res=response)=>{
 
     const {firstName, lastName, email, password} = req.body
-    req.session.user = {
-        firstName:  req.user.firstName,
-        email:      req.user.email
-    }
 
     try {
         const user = await userService.registerUser(firstName, lastName, email, password)
@@ -25,19 +25,13 @@ const userLogin = async (req = request, res=response)=>{
 
     const { email, password} = req.body
     
-    req.session.user = {
-        firstName:  req.user.firstName,
-        email:      req.user.email
-    }
-
     try {
-        const user = await userService.loginUser(email, password)
+        const {user, token} = await userService.loginUser(email, password)
         return res.status(200).json({
             status: 'Success',
             payload: {
-                firstName: user[0].firstName,
-                email: user[0].email,
-                state: user[0].state,
+                user,
+                token
             }
         })
     } catch (error) {
@@ -46,11 +40,27 @@ const userLogin = async (req = request, res=response)=>{
 }
 
 const getUser = async (req = request, res=response)=>{
+
+    const token = req.cookies
     try {
-        console.log(req.session.user)
-        res.send('ok')
+
+        console.log(token)
+        const user = jwt.verify(token, process.env.JWT_KEY)
+
+        const validUser = await User.findall({
+            where: {
+                email: user
+            }
+        })
+        
+        res.status(200).json({
+            user: validUser[0].email,
+            token: token
+        })
     } catch (error) {
-        console.log(error)
+        res.status(404).json({
+            error: 'Token error'
+        })
     }
 }
 
